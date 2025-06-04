@@ -73,24 +73,24 @@ def load_data_for_vae_training(cfg, sampling=None):
     print("Test set: " + str(len(x_test)) + " elements")
     return x_train, x_test
 
-# def load_vae_by_name(name):
-#     """
-#     Load a trained VAE from disk by name
-#     """
-#     cfg = Config()
-#     cfg.from_pyfile("config_my.py")
-#     print(cfg.SAO_MODELS_DIR + os.path.sep + 'encoder-' + name, cfg.SAO_MODELS_DIR + os.path.sep + 'decoder-' + name)
-#     encoder = tensorflow.keras.models.load_model(cfg.SAO_MODELS_DIR + os.path.sep + 'encoder-' + name)
-#     decoder = tensorflow.keras.models.load_model(cfg.SAO_MODELS_DIR + os.path.sep + 'decoder-' + name)
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-#     vae = VAE(model_name=name,
-#               loss=cfg.LOSS_SAO_MODEL,
-#               latent_dim=cfg.SAO_LATENT_DIM,
-#               encoder=encoder,
-#               decoder=decoder)
-#     vae.compile(optimizer=keras.optimizers.Adam(learning_rate=cfg.SAO_LEARNING_RATE))
+  
+  
+  
+  
+  
+  
 
-#     return vae
+  
 def load_vae_by_name(name):
     """
     Load a trained VAE from disk by name
@@ -101,14 +101,14 @@ def load_vae_by_name(name):
         path = "/bdata/usrdata/zjx/monitor_test/selforacle_rebuild/vae_ckpt"
         encoder_path = path + os.path.sep + 'encoder-' + name
         decoder_path = path + os.path.sep + 'decoder-' + name
-        # encoder_path = cfg.SAO_MODELS_DIR + os.path.sep + 'encoder-' + name
-        # decoder_path = cfg.SAO_MODELS_DIR + os.path.sep + 'decoder-' + name
-        # encoder_path = "/home/zjx/ase22/sao/encoder-track1-MSE-latent2"
-        # decoder_path = "/home/zjx/ase22/sao/decoder-track1-MSE-latent2"
+  
+  
+  
+  
         encoder = tensorflow.keras.models.load_model(encoder_path)
-        # print(encoder.summary())
+  
         decoder = tensorflow.keras.models.load_model(decoder_path)
-        # print(decoder.summary())
+  
         vae = VAE(model_name=name,
                 loss=cfg.LOSS_SAO_MODEL,
                 latent_dim=cfg.SAO_LATENT_DIM,

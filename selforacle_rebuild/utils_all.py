@@ -15,16 +15,16 @@ from tensorflow.keras import backend as K
 from config import Config
 from PIL import Image
 RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH = 250, 200
-# IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS = 160, 320, 3
+  
 IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS = 250, 200, 3
 INPUT_SHAPE = (RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH, IMAGE_CHANNELS)
 
 csv_fieldnames_original_simulator = ["center", "left", "right", "steering", "throttle", "brake", "speed"]
 csv_fieldnames_improved_simulator = ["frameId", "model", "anomaly_detector", "threshold", "sim_name",
                                      "lap", "waypoint", "loss",
-                                     "uncertainty",  # newly added
+                                     "uncertainty",   
                                      "cte", "steering_angle", "throttle", "speed", "brake", "crashed",
-                                     "distance", "time", "ang_diff",  # newly added
+                                     "distance", "time", "ang_diff",   
                                      "center", "tot_OBEs", "tot_crashes"]
 
 
@@ -39,24 +39,24 @@ def load_image(data_dir, image_file):
         return mpimg.imread(img_path)
     except FileNotFoundError:
         print(image_file + " not found")
-        # exit(1)
+  
 
 
 def crop(image):
-    # 获取原始图片尺寸
+  
     height, width, _ = image.shape
 
-    # 计算裁剪起点（从图片中心裁剪）
-    crop_x_center = width // 2  # 水平方向中心点
-    crop_y_center = height // 2  # 垂直方向中心点
+  
+    crop_x_center = width // 2   
+    crop_y_center = height // 2   
 
-    # 计算裁剪范围，确保不会超出边界
+  
     left = max(0, crop_x_center - RESIZED_IMAGE_WIDTH // 2)
     right = min(width, crop_x_center + RESIZED_IMAGE_WIDTH // 2)
     top = max(0, crop_y_center - RESIZED_IMAGE_HEIGHT // 2)
     bottom = min(height, crop_y_center + RESIZED_IMAGE_HEIGHT // 2)
 
-    # 计算裁剪后的尺寸
+  
     cropped_image = image[top:bottom, left:right]
 
     return cropped_image
@@ -125,25 +125,25 @@ def random_shadow(image):
     """
     Generates and adds random shadow
     """
-    # (x1, y1) and (x2, y2) forms a line
-    # xm, ym gives all the locations of the image
+  
+  
     x1, y1 = IMAGE_WIDTH * np.random.rand(), 0
     x2, y2 = IMAGE_WIDTH * np.random.rand(), IMAGE_HEIGHT
     xm, ym = np.mgrid[0:IMAGE_HEIGHT, 0:IMAGE_WIDTH]
 
-    # mathematically speaking, we want to set 1 below the line and zero otherwise
-    # Our coordinate is up side down.  So, the above the line: 
-    # (ym-y1)/(xm-x1) > (y2-y1)/(x2-x1)
-    # as x2 == x1 causes zero-division problem, we'll write it in the below form:
-    # (ym-y1)*(x2-x1) - (y2-y1)*(xm-x1) > 0
+  
+  
+  
+  
+  
     mask = np.zeros_like(image[:, :, 1])
     mask[(ym - y1) * (x2 - x1) - (y2 - y1) * (xm - x1) > 0] = 1
 
-    # choose which side should have shadow and adjust saturation
+  
     cond = mask == np.random.randint(2)
     s_ratio = np.random.uniform(low=0.2, high=0.5)
 
-    # adjust Saturation in HLS(Hue, Light, Saturation)
+  
     hls = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
     hls[:, :, 1][cond] = hls[:, :, 1][cond] * s_ratio
     return cv2.cvtColor(hls, cv2.COLOR_HLS2RGB)
@@ -153,7 +153,7 @@ def random_brightness(image):
     """
     Randomly adjust brightness of the image.
     """
-    # HSV (Hue, Saturation, Value) is also called HSB ('B' for Brightness).
+  
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     ratio = 1.0 + 0.4 * (np.random.rand() - 0.5)
     hsv[:, :, 2] = hsv[:, :, 2] * ratio
@@ -166,7 +166,7 @@ def augment(data_dir, center, left, right, steering_angle, range_x=100, range_y=
     (The steering angle is associated with the center image)
     """
     image, steering_angle = choose_image(data_dir, center, left, right, steering_angle)
-    # TODO: flip should be applied to left/right only and w/ no probability
+  
     image, steering_angle = random_flip(image, steering_angle)
     image, steering_angle = random_translate(image, steering_angle, range_x, range_y)
     image = random_shadow(image)
@@ -300,7 +300,7 @@ def load_improvement_set(cfg, ids):
     return x
 
 
-# copy of load_all_images for loading the heatmaps
+  
 def load_all_heatmaps(cfg):
     """
     Load the actual heatmaps (not the paths!)
@@ -316,20 +316,20 @@ def load_all_heatmaps(cfg):
 
     start = time.time()
 
-    # load the images
+  
     images = np.empty([len(x), RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH, IMAGE_CHANNELS])
 
     for i, path in enumerate(x):
         try:
-            image = mpimg.imread(path)  # load center images
+            image = mpimg.imread(path)   
         except FileNotFoundError:
             path = path.replace('\\', '/')
             image = mpimg.imread(path)
 
-        # visualize the input_image image
-        # import matplotlib.pyplot as plt
-        # plt.imshow(image)
-        # plt.show()
+  
+  
+  
+  
 
         images[i] = image
 
@@ -341,73 +341,73 @@ def load_all_heatmaps(cfg):
     return images
 
 
-# def load_all_images(cfg, simulation_name):
-#     """
-#     Load the actual images (not the paths!) in the cfg.SIMULATION_NAME directory.
-#     """
-#     path = os.path.join(cfg.ALL_SIMULATION_DIR,
-#                         simulation_name,
-#                         'driving_log.csv')
-#     data_df = pd.read_csv(path)
+  
+  
+  
+  
+  
+  
+  
+  
 
-#     x = data_df["path"]
-#     print("read %d images from directory %s" % (len(x), path))
+  
+  
 
-#     start = time.time()
+  
 
-#     # load the images
-#     images = np.empty([len(x), IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS])
+  
+  
 
-#     for i, path in enumerate(x):
-#         path = path.replace("\\", "/")
+  
+  
 
-#         image = mpimg.imread(path)  # load center images
+  
 
-#         # visualize the input_image image
-#         # import matplotlib.pyplot as plt
-#         # plt.imshow(image)
-#         # plt.show()
+  
+  
+  
+  
 
-#         images[i] = image
+  
 
-#     duration_train = time.time() - start
-#     print("Loading data_nominal set completed in %s." % str(datetime.timedelta(seconds=round(duration_train))))
+  
+  
 
-#     print("Data set: " + str(len(images)) + " elements")
+  
 
-#     return images
+  
 def load_all_images(path):
     """
     Load the actual images (not the paths!) in the cfg.SIMULATION_NAME directory.
     """
-    # path = os.path.join(cfg.NORMAL_SIMULATION_DIR,
-    #                     simulation_name,
-    #                     'driving_log.csv')
+  
+  
+  
     
-    # Reading the CSV file to get image paths
+  
     data_df = pd.read_csv(path)
 
-    # Get the image paths from the 'path' column
+  
     x = data_df["path"]
     print("read %d images from directory %s" % (len(x), path))
 
     start = time.time()
 
-    # Pre-allocate the array to hold the images
-    # images = np.empty([len(x), RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH, IMAGE_CHANNELS], dtype=np.uint8)
+  
+  
     images = np.empty([len(x), RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH, IMAGE_CHANNELS])
 
-    # Loop through image paths and load each image
+  
     for i, img_path in enumerate(x):
-        img_path = img_path.replace("\\", "/")  # Ensure consistent path format
+        img_path = img_path.replace("\\", "/")   
         
-        # Read the image using mpimg
+  
         print(img_path)
         image = mpimg.imread(img_path)
         image = crop(image)
-        # import matplotlib.pyplot as plt
-        # plt.imshow(image)
-        # plt.show()
+  
+  
+  
         images[i] = image
 
     duration_train = time.time() - start
@@ -429,7 +429,7 @@ def plot_reconstruction_losses(losses, new_losses, name, threshold, new_threshol
     y_threshold = [threshold] * len(x_threshold)
     plt.plot(x_threshold, y_threshold, '--', color='black', alpha=0.4, label='threshold')
 
-    # visualize crashes
+  
     try:
         crashes = data_df[data_df["crashed"] == 1]
         is_crash = (crashes.crashed - 1) + threshold
@@ -470,7 +470,7 @@ def load_autoencoder_from_disk():
     decoder = tensorflow.keras.models.load_model(
         cfg.SAO_MODELS_DIR + os.path.sep + 'decoder-' + cfg.ANOMALY_DETECTOR_NAME)
 
-    # TODO: manage the case in which the files do not exist
+  
     return encoder, decoder
 
 def get_sorted_folders(base_dir):
@@ -488,39 +488,39 @@ def append_results_to_csv( row_to_append, output_csv):
         output_csv (str): 要写入的 CSV 文件路径。
         row_to_append (dict): 包含要写入数据的字典，键为列名，值为对应数据。
     """
-    # 检查 CSV 文件是否存在
+  
     file_exists = os.path.isfile(output_csv)
 
-    # 以追加的方式写入 CSV 文件
+  
     with open(output_csv, mode='a', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=row_to_append.keys())
 
-        # 如果文件不存在，则写入表头
+  
         if not file_exists:
             writer.writeheader()
 
-        # 写入数据行
+  
         writer.writerow(row_to_append)
 
     print(f"结果已成功追加到 {output_csv}")
 
-# def calculate_threshold(path, aggregation_method):
-#     """
-#     计算 CSV 文件中 aggregation_method 列的值为 'mean' 的所有 threshold 列的均值。
+  
+  
+  
 
-#     Args:
-#         path (str): CSV 文件的路径。
+  
+  
 
-#     Returns:
-#         float: 筛选后的 threshold 均值。
-#     """
-#     # 读取 CSV 文件
-#     data = pd.read_csv(path)
+  
+  
+  
+  
+  
     
-#     # 筛选 aggregation_method 为 'mean' 的行
-#     filtered_data = data[data["aggregation_method"] == aggregation_method]
+  
+  
     
-#     # 计算 threshold 列的均值
-#     threshold_mean = filtered_data["threshold"].mean()
+  
+  
     
-#     return threshold_mean
+  

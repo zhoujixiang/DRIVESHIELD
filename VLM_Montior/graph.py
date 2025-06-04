@@ -1,6 +1,6 @@
-#只比较可能误报的场景，保存的场景是曾经误报的场景，先比较当前场景中的每个npc和ego的相对运动是否是过去场景中误报的运动，如果是的话则保存，然后记录所有从所有的保存中选择最相似的
-# 如果其中有多个npc和ego的相对运动在误报场景中是相似的，而这几个npc又不再同一个历史场景中，则对应每个npc对应的场景图都保存
-#首先需要道路相同，然后相对距离，然后是相对速度。
+  
+  
+  
 from itertools import combinations
 from collections import Counter
 from collections import defaultdict
@@ -23,8 +23,8 @@ def is_graph_entry_match(entry_a, entry_b):
         and entry_a["relative_position"] == entry_b["relative_position"]
         and same_sign(entry_a["longitudinal_distance"], entry_b["longitudinal_distance"])
         and same_sign(entry_a["lateral_distance"], entry_b["lateral_distance"])
-        # and same_sign(entry_a["lateral_speed"], entry_b["lateral_speed"])
-        # and same_sign(entry_a["longitudinal_speed"], entry_b["longitudinal_speed"])
+  
+  
     )
 
 
@@ -43,8 +43,8 @@ def compare_pair_graph(target_pair, pair):
     pair_past_graph_orginal = pair["past_graph"]
     pair_current_graph = []
     pair_past_graph = []
-    #挑选出被误判为危险的npc的行为
-    dangerous_npc_map = {}  # 记录每个 candidate_index 对应的 dangerous_npc 名称
+  
+    dangerous_npc_map = {}   
     raw_dangerous_npc = pair["metadata"].get("dangerous_npc", [])
     dangerous_npc_list = []
     if isinstance(raw_dangerous_npc, str):
@@ -52,7 +52,7 @@ def compare_pair_graph(target_pair, pair):
     elif isinstance(raw_dangerous_npc, list):
         for item in raw_dangerous_npc:
             if isinstance(item, str) and "," in item:
-                # 列表中是像 "NPC1, NPC2" 这样的元素，继续拆分
+  
                 dangerous_npc_list.extend([npc.strip() for npc in item.split(",")])
             else:
                 dangerous_npc_list.append(item)
@@ -60,7 +60,7 @@ def compare_pair_graph(target_pair, pair):
     for idx, dangerous_npc in enumerate(dangerous_npc_list):
         suffix = dangerous_npc[3:]
         if not (isinstance(suffix, str) and suffix.isdigit()):
-            # 不是合法数字，直接返回空字典
+  
             return {}
         npc_id = int(suffix) - 1
         pair_current_graph.append(pair_current_graph_orginal[npc_id])
@@ -80,13 +80,13 @@ def compare_pair_graph(target_pair, pair):
                     candidate_relative_lateral_distance = abs(candidate_current["lateral_distance"]) - abs(candidate["lateral_distance"])
                     candidate_relative_longitudinal_distance = abs(candidate_current["longitudinal_distance"]) - abs(candidate["longitudinal_distance"])
                     if same_sign(target_relative_lateral_distance, candidate_relative_lateral_distance) and same_sign(target_relative_longitudinal_distance, candidate_relative_longitudinal_distance):#相对位移相同,是靠近还是远离ego
-                        #对于当前场景属于同一范畴
+  
                         if abs(target_current_graph_gent_i["lateral_distance"] - candidate_current["lateral_distance"]) < 1 and abs(target_current_graph_gent_i["longitudinal_distance"] - candidate_current["longitudinal_distance"]) < 2 and\
                             abs(target_current_graph_gent_i["lateral_speed"] - candidate_current["lateral_speed"]) < 3 and abs(target_current_graph_gent_i["longitudinal_speed"] - candidate_current["longitudinal_speed"]) < 3:
                             fp_tn_candidate[agent_i].append({
                             "index": candidate_index,
                             "path": pair["metadata"]["path"],
-                            "dangerous_npc": dangerous_npc_map[candidate_index],  # 记录是哪个NPC
+                            "dangerous_npc": dangerous_npc_map[candidate_index],   
                         })
     
     return fp_tn_candidate   
@@ -106,8 +106,8 @@ def compare_pair_graph_tp_graph(target_pair, pair):
     pair_past_graph_orginal = pair["past_graph"]
     pair_current_graph = []
     pair_past_graph = []
-    #挑选出被误判为危险的npc的行为
-    dangerous_npc_map = {}  # 记录每个 candidate_index 对应的 dangerous_npc 名称
+  
+    dangerous_npc_map = {}   
     raw_dangerous_npc = pair["metadata"].get("dangerous_npc", [])
     dangerous_npc_list = []
     if isinstance(raw_dangerous_npc, str):
@@ -115,7 +115,7 @@ def compare_pair_graph_tp_graph(target_pair, pair):
     elif isinstance(raw_dangerous_npc, list):
         for item in raw_dangerous_npc:
             if isinstance(item, str) and "," in item:
-                # 列表中是像 "NPC1, NPC2" 这样的元素，继续拆分
+  
                 dangerous_npc_list.extend([npc.strip() for npc in item.split(",")])
             else:
                 dangerous_npc_list.append(item)
@@ -123,23 +123,23 @@ def compare_pair_graph_tp_graph(target_pair, pair):
     for idx, dangerous_npc in enumerate(dangerous_npc_list):
         suffix = dangerous_npc[3:]
         if not (isinstance(suffix, str) and suffix.isdigit()):
-            # 不是合法数字，直接返回空字典
+  
             return {}
         npc_id = int(suffix) - 1
         pair_current_graph.append(pair_current_graph_orginal[npc_id])
         pair_past_graph.append(pair_past_graph_orginal[npc_id])
         dangerous_npc_map[idx] = dangerous_npc 
-    # try:
-    #     for idx, dangerous_npc in enumerate(dangerous_npc_list):
-    #         if isinstance(dangerous_npc[3:], str) and dangerous_npc[3:].isdigit():
-    #         npc_id = int(dangerous_npc[3:]) - 1
-    #         pair_current_graph.append(pair_current_graph_orginal[npc_id])
-    #         pair_past_graph.append(pair_past_graph_orginal[npc_id])
-    #         dangerous_npc_map[idx] = dangerous_npc 
-    # except (ValueError, IndexError) as e:
-    #     # 解析错误或索引越界，直接返回空字典
-    #     print(f"Error parsing dangerous_npc '{dangerous_npc}': {e}")
-    #     return {}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
     
     for agent_i in range(len(target_current_graph)):
         fp_tn_candidate[agent_i] = []
@@ -155,12 +155,12 @@ def compare_pair_graph_tp_graph(target_pair, pair):
                     candidate_relative_lateral_distance = abs(candidate_current["lateral_distance"]) - abs(candidate["lateral_distance"])
                     candidate_relative_longitudinal_distance = abs(candidate_current["longitudinal_distance"]) - abs(candidate["longitudinal_distance"])
                     if same_sign(target_relative_lateral_distance, candidate_relative_lateral_distance) and same_sign(target_relative_longitudinal_distance, candidate_relative_longitudinal_distance):#相对位移相同,是靠近还是远离ego
-                        #对于当前场景属于同一范畴
+  
                         if abs(target_current_graph_gent_i["lateral_distance"] - candidate_current["lateral_distance"]) < 1 and abs(target_current_graph_gent_i["longitudinal_distance"] - candidate_current["longitudinal_distance"]) < 3:
                             fp_tn_candidate[agent_i].append({
                             "index": candidate_index,
                             "path": pair["metadata"]["path"],
-                            "dangerous_npc": dangerous_npc_map[candidate_index],  # 记录是哪个NPC
+                            "dangerous_npc": dangerous_npc_map[candidate_index],   
                         })
     
     return fp_tn_candidate   
@@ -238,7 +238,7 @@ def select_best_matches(merged_result, current_left_image, current_front_image, 
             path_counter[path] += 1
             path_to_agents[path].append(agent_id)
 
-    # 获取 path 出现多次的情况
+  
     common_paths = {path: count for path, count in path_counter.items() if count > 1}
 
     selected = []
@@ -246,13 +246,13 @@ def select_best_matches(merged_result, current_left_image, current_front_image, 
     unique_best_record = {}
     record = {}
     if common_paths:
-        max_count = max(common_paths.values())  # 获取最大的出现次数
-        best_paths = [path for path, count in common_paths.items() if count == max_count]  # 获取所有出现次数等于最大次数的路径
+        max_count = max(common_paths.values())   
+        best_paths = [path for path, count in common_paths.items() if count == max_count]   
         print(f"Best paths: {best_paths}")
         path_similarity_scores = {}
-        for path in best_paths:  # 处理所有出现次数最多的路径
+        for path in best_paths:   
             base_dir = os.path.dirname(os.path.dirname(path))
-            filename = os.path.basename(path)          # 得到 "0010.json"
+            filename = os.path.basename(path)   
             number_str = os.path.splitext(filename)[0]
             front_left_dir = os.path.join(base_dir, 'rgb_front_left/')
             front_left_image = os.path.join(front_left_dir, f"{number_str}.png")
@@ -274,7 +274,7 @@ def select_best_matches(merged_result, current_left_image, current_front_image, 
                     common_best_record[agent_id] = record
                     break
 
-    # 2. 对其余 agent，用图像相似度挑选
+  
     for agent_id, candidates in merged_result.items():
         best_entry = None
         if agent_id in selected or not candidates:
@@ -282,7 +282,7 @@ def select_best_matches(merged_result, current_left_image, current_front_image, 
         best_score = -1
         for entry in candidates:
             base_dir = os.path.dirname(os.path.dirname(entry["path"]))
-            filename = os.path.basename(entry["path"])          # 得到 "0010.json"
+            filename = os.path.basename(entry["path"])   
             number_str = os.path.splitext(filename)[0]
             front_left_dir = os.path.join(base_dir, 'rgb_front_left/')
             front_left_image = os.path.join(front_left_dir, f"{number_str}.png")
@@ -307,14 +307,14 @@ def select_best_matches(merged_result, current_left_image, current_front_image, 
 def extract_relationship_graph(data):
     relationships = []
     for entity, attributes in data.items():
-        # print(entity,attributes)
+  
         if entity != "ego_vehicle":
             relationships.append({
-                # "from": entity,
-                # "to": "ego_vehicle",
+  
+  
                 "lane_difference": attributes["change_lane_number"],
                 "relative_position": "left" if attributes["left_right_lane"] == "right" else "right",
-                # "relative_speed": data["ego_vehicle"]["speed"] - attributes["speed"],
+  
                 "lateral_distance": attributes["lateral_distance"],
                 "longitudinal_distance": attributes["longitudinal_distance"],
                 "lateral_speed": data["ego_vehicle"]["self_lateral_speed"] - attributes["self_lateral_speed"],

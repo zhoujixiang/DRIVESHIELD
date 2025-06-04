@@ -12,6 +12,6 @@ def rename_result_folders(root_dir):
             else:
                 print(f"No 'result' folder in {subdir_path}")
 
-# 使用方法：替换为你的实际目录
+  
 root_folder = "/bdata/usrdata/zjx/monitor_test/Bench2Drive/eval_bench2drive220_vad_traj/collision_need_to_judge"
 rename_result_folders(root_folder)

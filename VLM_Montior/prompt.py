@@ -6,47 +6,47 @@ from util import extract_reasons, format_float, load_json_file
 
 
 def generate_npc_prompt_old(npc_key, npc_data, ego_data):
-    # Determine relative position (left or right)
+  
     relative_side = "left" if npc_data["left_right_lane"] == "right" else "right"
-    # # Determine if the NPC is in front or behind the ego vehicle
-    # front_back = "front" if npc_data["longitudinal_distance"] > 0 else "behind"
-    # 计算纵向关系
-    if npc_data["longitudinal_distance"] > 4.8:  # NPC 完全在 ego 车前方
+  
+  
+  
+    if npc_data["longitudinal_distance"] > 4.8:   
         front_back = "in front of ego"
         longitudinal_distance = abs(npc_data["longitudinal_distance"]) - 4.8
         distance_description = f"with NPC's rear {format_float(longitudinal_distance)} m in front of Ego's front"
-    elif npc_data["longitudinal_distance"] < -4.8:  # NPC 完全在 ego 车后方
+    elif npc_data["longitudinal_distance"] < -4.8:   
         front_back = "behind ego"
         longitudinal_distance = abs(npc_data["longitudinal_distance"]) - 4.8
         distance_description = f"with NPC's front {format_float(longitudinal_distance)} m beind Ego's rear"
-    elif npc_data["longitudinal_distance"] > 0.2 and npc_data["longitudinal_distance"] < 4.8:  # NPC 部分重叠 ego 车,且稍领先ego
+    elif npc_data["longitudinal_distance"] > 0.2 and npc_data["longitudinal_distance"] < 4.8:   
         front_back = "partially beside and slightly in front of ego"
-        longitudinal_distance = abs(npc_data["longitudinal_distance"])  # 取最近的端点距离
+        longitudinal_distance = abs(npc_data["longitudinal_distance"])   
         distance_description = f"with NPC's front {format_float(longitudinal_distance)} m in front of Ego's front"
     elif npc_data["longitudinal_distance"] < -0.2 and npc_data["longitudinal_distance"] > -4.8:
         front_back = "partially beside and slightly behind ego"
-        longitudinal_distance = abs(npc_data["longitudinal_distance"])  # 取最近的端点距离
+        longitudinal_distance = abs(npc_data["longitudinal_distance"])   
         distance_description = f"with NPC's front {format_float(longitudinal_distance)} m behind Ego's front"
     else:
         front_back = "longitudinally close but not overlapping with ego"
         distance_description = "still separated laterally"
 
-    if npc_data["lateral_distance"] > 2.16: # NPC 完全在 ego 右边
+    if npc_data["lateral_distance"] > 2.16:   
         left_right = "to the right of ego"
-        lateral_distance = abs(npc_data["lateral_distance"]) - 2.16  # NPC 车左端到 Ego 车右端的距离
+        lateral_distance = abs(npc_data["lateral_distance"]) - 2.16   
         lateral_description = f"with NPC's left {format_float(lateral_distance)} m to the right of Ego's right"
-    elif npc_data["lateral_distance"] < -2.16: # NPC 完全在 ego 左边
+    elif npc_data["lateral_distance"] < -2.16:   
         left_right = "to the left of ego"
-        lateral_distance = abs(npc_data["lateral_distance"]) - 2.16  # NPC 车右端到 Ego 车左端的距离
+        lateral_distance = abs(npc_data["lateral_distance"]) - 2.16   
         lateral_description = f"with NPC's right {format_float(lateral_distance)} m to the left of Ego's left"
-    # elif npc_data["lateral_distance"] > -2.16 and npc_data["lateral_distance"] < 0: # NPC 部分重叠 ego 车,且稍微在 ego 右边,
-    elif npc_data["lateral_distance"] < 2.16 and npc_data["lateral_distance"] > 0.2: # NPC 部分重叠 ego 车,且稍微在 ego 右边,
+  
+    elif npc_data["lateral_distance"] < 2.16 and npc_data["lateral_distance"] > 0.2:   
         left_right = "partially beside and slightly to the right of ego"
-        lateral_distance = abs(npc_data["lateral_distance"])  # NPC 车右端到 Ego 车左端的距离
+        lateral_distance = abs(npc_data["lateral_distance"])   
         lateral_description = f"with NPC's right {format_float(lateral_distance)} m to the right of Ego's side"
     elif npc_data["lateral_distance"] > -2.16 and npc_data["lateral_distance"] < -0.2:
         left_right = "partially beside and slightly to the left of ego"
-        lateral_distance = abs(npc_data["lateral_distance"])  # NPC 车左端到 Ego 车右端的距离
+        lateral_distance = abs(npc_data["lateral_distance"])   
         lateral_description = f"with NPC's right {format_float(lateral_distance)} m to the right of Ego's side"
     else:
         left_right = "laterally aligned but not overlapping with ego"
@@ -65,129 +65,129 @@ def generate_npc_prompt_old(npc_key, npc_data, ego_data):
 
     return prompt
 
-# def generate_npc_prompt(npc_key, npc_data, ego_data):
-#     # Determine relative position (left or right)
-#     relative_side = "left" if npc_data["left_right_lane"] == "right" else "right"
-#     # # Determine if the NPC is in front or behind the ego vehicle
-#     # front_back = "front" if npc_data["longitudinal_distance"] > 0 else "behind"
-#     # 计算纵向关系
-#     # 定义车辆半长
-#     EGO_HALF_LENGTH = 2.4  
-#     NPC_HALF_LENGTH = 2.4
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-#     longitudinal_distance = npc_data["longitudinal_distance"]
-#     front_back = ""
-#     distance_description = ""
+  
+  
+  
 
-#     # 完全分离状态判断
-#     if longitudinal_distance > EGO_HALF_LENGTH + NPC_HALF_LENGTH:
-#         front_back = "completely in front of ego"
-#         gap = longitudinal_distance - (EGO_HALF_LENGTH + NPC_HALF_LENGTH)
-#         distance_description = f"with NPC's rear {format_float(gap)} m ahead of Ego's front"
+  
+  
+  
+  
+  
 
-#     elif longitudinal_distance < -(EGO_HALF_LENGTH + NPC_HALF_LENGTH):
-#         front_back = "completely behind ego"
-#         gap = abs(longitudinal_distance) - (EGO_HALF_LENGTH + NPC_HALF_LENGTH)
-#         distance_description = f"with NPC's front {format_float(gap)} m behind Ego's rear"
+  
+  
+  
+  
 
-#     # 重叠/相邻状态判断
-#     else:
-#         overlap = (EGO_HALF_LENGTH + NPC_HALF_LENGTH) - abs(longitudinal_distance)
-#         if longitudinal_distance > 0:
-#             front_back = "closely in front of ego"
-#             distance_description = f"within a close longitudinal range of {format_float(overlap)} m"
-#         else:
-#             front_back = "closely behind ego"
-#             distance_description = f"within a close longitudinal range of {format_float(overlap)} m"
-#     # 重叠/相邻状态判断
-#     # else:
-#     #     if longitudinal_distance > 0:
-#     #         # NPC 整体在 Ego 前方（含重叠）
-#     #         overlap = (EGO_HALF_LENGTH + NPC_HALF_LENGTH) - abs(longitudinal_distance)
-#     #         front_back = "partially overlapping in front of ego" if overlap > 0 else "immediately ahead of ego"
-#     #         distance_description = f"with {format_float(overlap)} m longitudinal overlap" if overlap > 0 else "exactly aligned front-to-rear"
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
         
-#     #     else:
-#     #         # NPC 整体在 Ego 后方（含重叠）
-#     #         overlap = (EGO_HALF_LENGTH + NPC_HALF_LENGTH) - abs(longitudinal_distance)
-#     #         front_back = "partially overlapping behind ego" if overlap > 0 else "immediately behind ego"
-#     #         distance_description = f"with {format_float(overlap)} m longitudinal overlap" if overlap > 0 else "exactly aligned rear-to-front"
+  
+  
+  
+  
+  
 
-#     EGO_HALF_WIDTH = 1.08  
-#     NPC_HALF_WIDTH = 1.08
+  
+  
 
-#     lateral_distance = npc_data["lateral_distance"]
+  
 
-#     if lateral_distance > EGO_HALF_WIDTH + NPC_HALF_WIDTH:
-#         # NPC 完全在右侧（无重叠）
-#         left_right = "completely to the right of ego"
-#         gap = lateral_distance - (EGO_HALF_WIDTH + NPC_HALF_WIDTH)
-#         lateral_description = f"with a clear gap of {format_float(gap)} m between vehicles"
+  
+  
+  
+  
+  
 
-#     elif lateral_distance < -(EGO_HALF_WIDTH + NPC_HALF_WIDTH):
-#         # NPC 完全在左侧（无重叠）
-#         left_right = "completely to the left of ego"
-#         gap = abs(lateral_distance) - (EGO_HALF_WIDTH + NPC_HALF_WIDTH)
-#         lateral_description = f"with a clear gap of {format_float(gap)} m between vehicles"
+  
+  
+  
+  
+  
 
-#     elif lateral_distance > 0:
-#             overlap = EGO_HALF_WIDTH + NPC_HALF_WIDTH - abs(lateral_distance)
-#             left_right = "closely to the right of ego"
-#             lateral_description = f"within a lateral range of {format_float(overlap)} m"
-#     else:
-#             overlap = EGO_HALF_WIDTH + NPC_HALF_WIDTH - abs(lateral_distance)
-#             left_right = "closely to the left of ego"
-#             lateral_description = f"within a lateral range of {format_float(overlap)} m"
-#     # elif lateral_distance > 0:
-#     #     # NPC 在 Ego 右侧（横向上）
-#     #     overlap = EGO_HALF_WIDTH + NPC_HALF_WIDTH - abs(lateral_distance)
-#     #     if overlap > 0:
-#     #         left_right = "partially projection overlapping to the right of ego"
-#     #         lateral_description = f"with {format_float(overlap)} m lateral overlap on the right side"
-#     #     else:
-#     #         left_right = "immediately to the right of ego"
-#     #         lateral_description = "exactly aligned side-by-side on the right"
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-#     # else:
-#     #     # NPC 在 Ego 左侧（横向上）
-#     #     overlap = EGO_HALF_WIDTH + NPC_HALF_WIDTH - abs(lateral_distance)
-#     #     if overlap > 0:
-#     #         left_right = "partially projection overlapping to the left of ego"
-#     #         lateral_description = f"with {format_float(overlap)} m lateral overlap on the left side"
-#     #     else:
-#     #         left_right = "immediately to the left of ego"
-#     #         lateral_description = "exactly aligned side-by-side on the left"
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-#     if npc_data['current_lane'] == ego_data['lane']:
-#         prompt = f"{npc_key} is in the {npc_data['current_lane']} lane, which is the same as ego's lane. "
-#         prompt += f"longitudinally, {front_back}, {distance_description}, "
-#         prompt += f"laterally, {npc_key} is {left_right},{lateral_description}, "
-#         prompt += f"traveling at a speed of {format_float(npc_data['speed'])} m/s."
-#         # prompt += f"traveling at a longitudinal speed of {abs(format_float(npc_data['self_longitudinal_speed']))} m/s and a lateral speed of {abs(format_float(npc_data['self_lateral_speed']))} m/s."
-#     else:
-#         prompt = f"{npc_key} is in the {npc_data['current_lane']} lane, which is {abs(ego_data['lane']-npc_data['current_lane'])} lanes different from ego's lane. "
-#         prompt += f"longitudinally, {front_back}, {distance_description}, "
-#         prompt += f"laterally, {npc_key} is {left_right},{lateral_description}, "
-#         prompt += f"traveling at a speed of {format_float(npc_data['speed'])} m/s."
-#         # prompt += f"traveling at a longitudinal speed of {abs(format_float(npc_data['self_longitudinal_speed']))} m/s and a lateral speed of {abs(format_float(npc_data['self_lateral_speed']))} m/s."
-#     return prompt
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 def generate_npc_prompt(npc_key, npc_data, ego_data):
     def format_float(val):
         return f"{val:.2f}"
 
-    # Half size definitions
+  
     EGO_HALF_LENGTH = 2.4
     NPC_HALF_LENGTH = 2.4
     EGO_HALF_WIDTH = 1.08
     NPC_HALF_WIDTH = 1.08
 
-    # Longitudinal relation
+  
     longitudinal_distance = npc_data["longitudinal_distance"]
     abs_long_dist = abs(longitudinal_distance)
     long_dir = "front of" if longitudinal_distance > 0 else "behind"
 
-    # Lateral relation
+  
     lateral_distance = npc_data["lateral_distance"]
     abs_lat_dist = abs(lateral_distance)
     lat_dir = "right" if lateral_distance > 0 else "left"
@@ -196,7 +196,7 @@ def generate_npc_prompt(npc_key, npc_data, ego_data):
     prompt += f"It is approximately {format_float(abs_long_dist)} meters {long_dir} the ego vehicle longitudinally, "
     prompt += f"and about {format_float(abs_lat_dist)} meters to the {lat_dir} side laterally. "
     prompt += f"{npc_key} is traveling at a speed of {format_float(npc_data['speed'])} m/s. "
-    # prompt += "No abrupt maneuvers have been observed in its recent motion."
+  
 
     return prompt
 
@@ -207,40 +207,40 @@ def generate_ego_prompt(ego_data):
     return f"ego is in lane {ego_data['lane']}, traveling at a speed of {format_float(ego_data['speed'])} m/s, moving straight ahead."
 
 def generate_full_prompt(json_file):
-    """生成完整的场景描述prompt"""
-    # 读取 JSON 文件
+   
+  
     data = load_json_file(json_file)
     npc_list = []
     prompts = []
     prompt = generate_ego_prompt(data["ego_vehicle"])
     prompts.append(prompt)
-    # 遍历 NPC 并生成 prompt
+  
     for npc_key, npc_data in data.items():
         if npc_key != "ego_vehicle" and  npc_data["longitudinal_distance"] > -1:
             npc_list.append(npc_key)
             prompt = generate_npc_prompt(npc_key, npc_data, data["ego_vehicle"])
             prompts.append(prompt)
 
-    # 合并开始和结束的描述
+  
     final_prompt = f"From the ego view, the lanes from left to right are numbered from -2, to -4, with a lane width of 3.5 meters. " + " ".join(prompts)
-    # final_prompt_easy = f"In the BEV image, the lanes from left to right are numbered from -3 to -7, with a lane width of 3.5 meters. The ego vehicle is located in the center of the image." 
-    # final_prompt_easy += f"Each vehicle has a width of 2.16 m and a length of 4.8 m, and the distances are measured from the each vehicles' center position." + " ".join(prompts)
+  
+  
     return final_prompt, npc_list
 
 def generate_full_prompt_specific_npc(json_file, npc_list):
-    """生成完整的场景描述prompt"""
-    # 读取 JSON 文件
+   
+  
     data = load_json_file(json_file)
     prompts = []
     prompt = generate_ego_prompt(data["ego_vehicle"])
     prompts.append(prompt)
-    # 遍历 NPC 并生成 prompt
+  
     for npc_key, npc_data in data.items():
         if npc_key != "ego_vehicle" and npc_key in npc_list:
             prompt = generate_npc_prompt(npc_key, npc_data, data["ego_vehicle"])
             prompts.append(prompt)
 
-    # 合并开始和结束的描述
+  
     final_prompt = f"From the ego view, the lanes from left to right are numbered from -2, to -4, with a lane width of 3.5 meters. " + " ".join(prompts)
     return final_prompt
 
@@ -272,10 +272,10 @@ def generate_supply_vehicle_descriptions(base_path, current_frame, npc_info, ste
         vehicle_description = generate_full_prompt_specific_npc(path, npc_info)
         descriptions[key] = vehicle_description
     return descriptions
-# 使用示例
-# base_path = "/bdata/usrdata/zjx/monitor_test/Bench2Drive/eval_bench2drive220_uniad_traj_old/collision/RouteScenario_1792_rep0_Town12_HazardAtSideLane_1_None_04_01_03_00_19/record/"
-# current_frame = 30
-# vehicle_descriptions = generate_vehicle_descriptions(base_path, current_frame)        
+  
+  
+  
+  
 
 
 def genereta_supply_common_prompt(common_best_record):
@@ -283,9 +283,9 @@ def genereta_supply_common_prompt(common_best_record):
     unique_path = next(iter(common_best_record.values()))["path"]
     base_dir = os.path.dirname(unique_path)
     root_dir = os.path.dirname(base_dir)
-    filename = os.path.basename(unique_path)  # 得到 "0010.json"
-    number_str = os.path.splitext(filename)[0]  # 得到 "0010"
-    number = int(number_str.lstrip('0'))  # 去除前导0并转为整数：10
+    filename = os.path.basename(unique_path)   
+    number_str = os.path.splitext(filename)[0]   
+    number = int(number_str.lstrip('0'))   
     history_reason_dir = os.path.join(root_dir, 'result_graph/')
     history_reason_path = os.path.join(history_reason_dir, f"{number_str}.txt")
     reasons = extract_reasons(history_reason_path)
@@ -316,9 +316,9 @@ def genereta_supply_vehicle_descriptions(agent, data):
     unique_path = data["path"]
     base_dir = os.path.dirname(unique_path)
     root_dir = os.path.dirname(base_dir)
-    filename = os.path.basename(unique_path)  # 得到 "0010.json"
-    number_str = os.path.splitext(filename)[0]  # 得到 "0010"
-    number = int(number_str.lstrip('0'))  # 去除前导0并转为整数：10
+    filename = os.path.basename(unique_path)   
+    number_str = os.path.splitext(filename)[0]   
+    number = int(number_str.lstrip('0'))   
     history_reason_dir = os.path.join(root_dir, 'result_graph/')
     history_reason_path = os.path.join(history_reason_dir, f"{number_str}.txt")
     reasons = extract_reasons(history_reason_path)
@@ -360,7 +360,7 @@ class CorrectionAction(str, Enum):
 
 class RepairAction(BaseModel):
     action: CorrectionAction
-    speed: float  # 限定速度为浮动值
+    speed: float   
 
 def compress_and_encode(image_path, target_width=200):
     img = Image.open(image_path)
@@ -368,7 +368,7 @@ def compress_and_encode(image_path, target_width=200):
     ratio = target_width / w
     target_height = int(h * ratio)
 
-    # 向后兼容的 LANCZOS 采样
+  
     resample = getattr(Image, 'Resampling', Image).LANCZOS
 
     resized_img = img.resize((target_width, target_height), resample)
@@ -419,45 +419,45 @@ def parse_stream_response(completion, print_output=False):
     return response_text
 
 
-# def build_history_scene_fp(index, images, descriptions, final_risk_text):
-#     scene = [
-#         {"type": "text", "text": f"[Historical Scene #{index}]"},
-#         {"type": "text", "text": "This is a past scene that you previously judged."},
-#         {"type": "text", "text": (
-#             "In this scene, the behavior of NPCs appeared dangerous and you judged that a collision would occur. "
-#             "However, your judgment was incorrect — no collision happened in reality. "
-#             "You should learn from this mistake and apply that learning to the current scene."
-#         )},
-#         {"type": "text", "text": "Front-left camera image:"},
-#         {"type": "image_url", "image_url": {"url": images["front_left"]}},
-#         {"type": "text", "text": "Front camera image:"},
-#         {"type": "image_url", "image_url": {"url": images["front"]}},
-#         {"type": "text", "text": "Front-right camera image:"},
-#         {"type": "image_url", "image_url": {"url": images["front_right"]}},
-#     ]
-#     sorted_descriptions = []
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-#     for key, desc in descriptions.items():
-#         if key == "vehicle_description":
-#             sorted_descriptions.append((0.0, "Current scene description", desc))
-#         else:
-#             # 从 key 中提取出秒数，例如 "vehicle_description_0.5s" → 0.5
-#             seconds = float(key.replace("vehicle_description_", "").replace("s", ""))
-#             sorted_descriptions.append((seconds, f"Scene description from {seconds:.1f} seconds before the current image", desc))
+  
+  
+  
+  
+  
+  
+  
 
-#     # 按时间排序
-#     sorted_descriptions.sort(key=lambda x: x[0])
+  
+  
 
-#     # 添加到 scene
-#     for _, label, desc in sorted_descriptions:
-#         scene.append({"type": "text", "text": f"{label}: {desc}"})
-#     scene.append({"type": "text", "text": f"Your past final judgment: {final_risk_text} (Incorrect)"})
-#     scene.append({"type": "text", "text": "Ground truth: No collision occurred. Risk Level: 1 (Low Risk)."})
-#     return scene
+  
+  
+  
+  
+  
+  
 
 def build_history_scene_fp(index, images, descriptions, final_risk_text):
     scene = [
-        {"type": "text", "text": f"[Historical Scene #{index}]"},
+        {"type": "text", "text": f"[Historical Scene   
         {"type": "text", "text": (
         "This is a historical scene where an NPC exhibited behavior that was previously mistaken as high-risk, "
         "leading to a false collision prediction. However, no collision actually occurred. "
@@ -477,53 +477,53 @@ def build_history_scene_fp(index, images, descriptions, final_risk_text):
         if key == "vehicle_description":
             sorted_descriptions.append((0.0, "Scene description at t = 0.0s of this historical image", desc))
         else:
-            # 从 key 中提取出秒数，例如 "vehicle_description_0.5s" → 0.5
+  
             seconds = float(key.replace("vehicle_description_", "").replace("s", ""))
             sorted_descriptions.append((seconds, f"Scene description from {seconds:.1f} seconds before the historical image", desc))
 
-    # 按时间排序
+  
     sorted_descriptions.sort(key=lambda x: x[0])
 
-    # 添加到 scene
+  
     for _, label, desc in sorted_descriptions:
         scene.append({"type": "text", "text": f"{label}: {desc}"})
     return scene
 
 
-# def build_history_scene_tp(index, images, descriptions, final_risk_text):
-#     scene = [
-#         {"type": "text", "text": f"[Historical Scene #{index}]"},
-#         {"type": "text", "text": "This is a past scene that you previously judged."},
-#         {"type": "text", "text": (
-#             "In this scene, the behavior of NPCs was indeed dangerous, and you correctly predicted that a collision would occur. "
-#             "This is a good decision. Please refer to this case to support your judgment of the current scene."
-#         )},
-#         {"type": "text", "text": "Front-left camera image:"},
-#         {"type": "image_url", "image_url": {"url": images["front_left"]}},
-#         {"type": "text", "text": "Front camera image:"},
-#         {"type": "image_url", "image_url": {"url": images["front"]}},
-#         {"type": "text", "text": "Front-right camera image:"},
-#         {"type": "image_url", "image_url": {"url": images["front_right"]}},
-#     ]
-#     sorted_descriptions = []
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-#     for key, desc in descriptions.items():
-#         if key == "vehicle_description":
-#             sorted_descriptions.append((0.0, "Current scene description", desc))
-#         else:
-#             seconds = float(key.replace("vehicle_description_", "").replace("s", ""))
-#             sorted_descriptions.append((seconds, f"Scene description from {seconds:.1f} seconds before the current image", desc))
+  
+  
+  
+  
+  
+  
 
-#     sorted_descriptions.sort(key=lambda x: x[0])
+  
 
-#     for _, label, desc in sorted_descriptions:
-#         scene.append({"type": "text", "text": f"{label}: {desc}"})
-#     scene.append({"type": "text", "text": f"Your past final judgment: {final_risk_text} (Correct)"})
-#     scene.append({"type": "text", "text": "Ground truth: Collision occurred. Risk Level: 0 (High Risk)."})
-#     return scene
+  
+  
+  
+  
+  
 def build_history_scene_tp(index, images, descriptions, final_risk_text):
     scene = [
-        {"type": "text", "text": f"[Historical Scene #{index}]"},
+        {"type": "text", "text": f"[Historical Scene   
         {"type": "text", "text": (
         "This is a historical scene where an NPC's behavior eventually led to a collision. "
         "While the scene may share some spatial or behavioral patterns with the current one, "
@@ -561,10 +561,10 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
     
     similar_result_tp = find_most_similar_graph_pair(current_scene, past_scene, db_path="/bdata/usrdata/zjx/monitor_test/Bench2Drive/graph_pair_db_collision.jsonl")
     similar_result_fp = find_most_similar_graph_pair(current_scene, past_scene, db_path="/bdata/usrdata/zjx/monitor_test/Bench2Drive/graph_pair_db.jsonl")
-    # if similar_result_tp:
-    #     similar_result_fp = find_most_similar_graph_pair_tp_graph(current_scene, past_scene, similar_result_tp, db_path="/bdata/usrdata/zjx/monitor_test/Bench2Drive/graph_pair_db.jsonl")
-    # else:
-    #     similar_result_fp = find_most_similar_graph_pair(current_scene, past_scene, db_path="/bdata/usrdata/zjx/monitor_test/Bench2Drive/graph_pair_db.jsonl")
+  
+  
+  
+  
 
     front_left_dir = os.path.join(base_dir, 'rgb_front_left/')
     id = f"{current_frame:04d}" 
@@ -595,13 +595,13 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         history_scenes_fp.extend(scene)
         history_scenes_fp_file["common"] = common_best_record_fp
     elif unique_best_record_fp:
-        # few_shot_prompt = "The following are scenarios where have similar NPC behaviors with current scenario. Some of the NPC behaviors are thought to cause collisions, but they do not. Please refer to:\n"
-        # best_agent_id, best_entry = max(unique_best_record_fp.items(), key=lambda item: item[1]["similarity_score"])
+  
+  
     
-        # 只保留这一个
-        # unique_best_record_fp = {best_agent_id: best_entry}
+  
+  
         for agent, data in unique_best_record_fp.items():
-            # few_shot_prompt += f"the behavior of NPC{agent} in the current scene and {data['dangerous_npc']} in the past scene is similar,"
+  
             vehicle_descriptions, common_agent_prompt_fp, front_left_image_encode, front_image_encode, front_right_image_encode, final_risk_text_tp = genereta_supply_vehicle_descriptions(agent, data)
             images = {
                 "front_left": f"data:image/png;base64,{front_left_image_encode}",
@@ -631,13 +631,13 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         history_scenes_tp.extend(scene)
         history_scenes_tp_file["common"] = common_best_record_tp
     elif unique_best_record_tp:  
-        # few_shot_prompt = "The following are scenarios where have similar NPC behaviors with current scenario. Some of the NPC behaviors are thought to cause collisions, but they do not. Please refer to:\n"
-        # best_agent_id, best_entry = max(unique_best_record_tp.items(), key=lambda item: item[1]["similarity_score"])
+  
+  
     
-        # # 只保留这一个
-        # unique_best_record_tp = {best_agent_id: best_entry}
+  
+  
         for agent, data in unique_best_record_tp.items():
-            # few_shot_prompt += f"the behavior of NPC{agent} in the current scene and {data['dangerous_npc']} in the past scene is similar,"
+  
             vehicle_descriptions, common_agent_prompt_tp, front_left_image_encode, front_image_encode, front_right_image_encode, final_risk_text_tp = genereta_supply_vehicle_descriptions(agent, data)
             images = {
                 "front_left": f"data:image/png;base64,{front_left_image_encode}",
@@ -664,50 +664,50 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         {"type": "text", "text": f"This is current scene description: {vehicle_description}"},
     ]
 
-                #     1️⃣ **Identify NPCs in Ego's Forward View**:
-                # - Use images and text data to locate all NPCs visible **in the ego vehicle**.
-                # - Record each visible NPC’s lane, lateral and longitudinal distance, and whether it is within or near the ego’s lane.
+  
+  
+  
 
-                # 2️⃣  **Analyze Current Motion of Each Visible NPC**:
-                # - From the image:
+  
+  
 
-                #     Determine heading direction: Is the NPC moving straight, turning, or merging?
+  
 
-                #     Check lane alignment: Is the NPC centered in its lane, crossing lane lines, or drifting toward ego’s lane?
+  
 
-                # - From recent motion (past 2 seconds):
-                #     Check for acceleration or deceleration.
+  
+  
 
-                #     Observe changes in relative distance and lateral offset.
+  
 
-                #     Infer if the NPC is merging, maintaining lane, or diverging from ego.
-                # - <Extreme Risk (0)>: Collision is imminent or extremely likely within **0.5 seconds**. Immediate avoidance required.
-                # - <Negligible Risk (1)>: No meaningful collision risk within **0.5 seconds**. NPC is moving away or remains at a safe distance.
-                #                 3️⃣ **Predict Collision Risk**:
-                # - Use both image and motion data to answer the following hierarchical questions, each serving a specific purpose to reduce false positives and false negatives:
+  
+  
+  
+  
+  
 
-                #     1 **Is the NPC in or merging into ego’s lane?**  
-                #     - Only such NPCs are considered collision risks.
+  
+  
 
-                #     2 **Are lateral gap (<1.5 m) and longitudinal distance close enough to risk collision?**  
-                #     - Large or increasing gaps reduce collision likelihood.
+  
+  
 
-                #     3 **Is ego closing in on the NPC (relative_speed > 0)?**  
-                #     - If not closing in, collision risk is negligible.
+  
+  
 
-                #     Only if all conditions suggest threat, proceed to:
+  
 
-                #     - **Estimate Time-to-Collision (TTC):**  
-                #     - `relative_speed = ego_speed - npc_speed`  
-                #     - If `relative_speed > 0`:  
-                #         `TTC = longitudinal_distance / relative_speed`  
-                #     - Else `TTC = ∞`
+  
+  
+  
+  
+  
 
-                #     - Interpret TTC and lane status:  
-                #     - **Collision Likely (0)**: TTC < 0.5s and NPC in/merging lane  
-                #     - **No Collision (1)**: Otherwise
+  
+  
+  
 
-                #     🚫 Note: Do not assume collision just from proximity; lateral and longitudinal distances and merge intent must all indicate risk.
+  
                 
     system_prompt = """
                 You are an **autonomous vehicle collision prediction expert**. Your task is to determine whether a collision will occur **within the next 0.5 second**, based on:
@@ -715,13 +715,13 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
                 
                 Your focus is on **NPCs that are visible of the ego vehicle**, within the camera's field of view. Ignore vehicles that are outside the sensor's effective range.
 
-                ### Risk Levels:
+  
                 - <Extreme Risk (0)>: Collision is imminent or extremely likely within **0.5 seconds**. Immediate avoidance required.
                 - <Negligible Risk (1)>: No meaningful collision risk within **0.5 seconds**. NPC is moving away or remains at a safe distance.
 
                 ---
 
-                ### Step-by-Step Reasoning Process:
+  
 
                 1️⃣ **Identify NPCs in Ego’s Forward View**:
                 - Use camera images and motion data to identify **all visible NPCs** ahead of the ego vehicle.
@@ -789,7 +789,7 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
                 - What is the cause? (e.g., lane merging, too slow in front, sudden cut-in)
                 - Recommended Action Plan: Recommend how the ego should react (e.g., brake, slow down, change lanes) and what speed range is safe.
 
-                ### Output Format (JSON):
+  
                 Return the final output as a JSON with:
 
                 ```json
@@ -807,95 +807,95 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
                         "ego_speed": "3.2 m/s"
                     }
                 }                 """
-    # system_prompt = """
-    #             You are an **autonomous vehicle collision prediction expert**. Your task is to determine whether a collision will occur **within the next 1 second**, based on:
-    #             - **Three front-facing perspective images** (left-front, front, right-front), and**Motion descriptions for each visible vehicle (NPC) in the past 2 seconds**.
+  
+  
+  
                 
-    #             Your focus is on **NPCs that are visible of the ego vehicle**, within the camera's field of view. Ignore vehicles that are outside the sensor's effective range.
+  
 
-    #             ### Risk Levels:
-    #             - <Extreme Risk (0)>: Collision is imminent or extremely likely within **1 seconds**. Immediate avoidance required.
-    #             - <Negligible Risk (1)>: No meaningful collision risk within **1 seconds**. NPC is moving away or remains at a safe distance.
+  
+  
+  
 
-    #             ---
+  
 
-    #             ### Step-by-Step Reasoning Process:
+  
 
-    #             1️⃣ **Identify NPCs in Ego's Forward View**:
-    #             - Use images and text data to locate all NPCs visible **in the ego vehicle**.
-    #             - Record each visible NPC’s lane, lateral and longitudinal distance, and whether it is within or near the ego’s lane.
+  
+  
+  
 
-    #             2️⃣  **Analyze Current Motion of Each Visible NPC**:
-    #             - From the image:
+  
+  
 
-    #                 Determine heading direction: Is the NPC moving straight, turning, or merging?
+  
 
-    #                 Check lane alignment: Is the NPC centered in its lane, crossing lane lines, or drifting toward ego’s lane?
+  
 
-    #             - From recent motion (past 2 seconds):
-    #                 Check for acceleration or deceleration.
+  
+  
 
-    #                 Observe changes in relative distance and lateral offset.
+  
 
-    #                 Infer if the NPC is merging, maintaining lane, or diverging from ego.
+  
 
-    #             3️⃣ **Predict Collision Risk**:
-    #             - Use both image and motion data to answer:
+  
+  
 
-    #                 ❓ Is the NPC currently in ego’s lane or visibly merging into it?
+  
 
-    #                 ❓ Is the lateral gap small (typically < 1.5 m) and decreasing?
+  
 
-    #                 ❓ Is there a closing speed in longitudinal direction?
+  
 
-    #                 ❓ Will the predicted motion intersect ego's path?
+  
 
-    #             🚫 Important Rule:
+  
 
-    #                 Do not assume a collision just because the NPC is close in front.
+  
 
-    #             A short longitudinal distance is only risky if:
+  
 
-    #                 The NPC is in the same lane or merging into ego’s lane, and
+  
 
-    #                 The ego is approaching rapidly without time to avoid.
+  
 
-    #             If the lateral gap is large (e.g., > 3.5 m), and the NPC is in a different lane with no merge intent (no steering, wheel angle, or trajectory shift), then even a short longitudinal distance does not mean collision.
+  
 
-    #             4️⃣ **Final Judgment and Action Plan**:
-    #             - Will a collision occur? (Yes/No)
-    #             - If **Yes**:
-    #             - Which NPC(s) are dangerous?
-    #             - What is the cause? (e.g., lane merging, too slow in front, sudden cut-in)
-    #             - Recommended Action Plan: Recommend how the ego should react (e.g., brake, slow down, change lanes) and what speed range is safe.
+  
+  
+  
+  
+  
+  
 
-    #             ### Output Format (JSON):
-    #             Return the final output as a JSON with:
+  
+  
 
-    #             ```json
-    #             {
-    #                 "risk_score": 0 or 1   <Extreme Risk (0)>: Immediate collision or <Negligible Risk (1)>: No meaningful risk
-    #                 "reason": "Explain why this risk level was assigned, citing distances, speeds, and motion.",
-    #                 "predict_npc_action": {
-    #                     "NPC1": "braking",
-    #                     "NPC2": "lane change left",
-    #                     ...
-    #                 },
-    #                 "dangerous_npc: "npcs",
-    #                 "avoidable_behaviors": {
-    #                     "ego_action": ["brake", "lane change right"],
-    #                     "ego_speed": "3.2 m/s"
-    #                 }
-    #             }                 """
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
     
     output_dir = os.path.join(base_dir, 'output_graph/')
     os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, f"{id}.txt")
     if len(history_scenes_fp) > 0 and len(history_scenes_tp) > 0:
         history_intro_fp = [
-            # {"type": "text", "text": (
-            #     "The following are historical reference scenes. Use them only as contrast to support or challenge your current judgment."
-            # )}
+  
+  
+  
             {"type": "text", "text": (
                 """The following are historical reference scenes. Use them only as contrast to support or challenge your current judgment. Important: DO NOT copy conclusions from history scenes directly.
                     You must:
@@ -911,9 +911,9 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         scenes_fp = history_intro_fp + history_scenes_fp + [{"type": "text", "text": common_agent_prompt_fp}]
 
         history_intro_tp = [
-            # {"type": "text", "text": (
-            #     "The following are historical reference scenes. Use them only as contrast to support or challenge your current judgment."
-            # )}
+  
+  
+  
             {"type": "text", "text": (
                 """The following are historical reference scenes. Use them only as contrast to support or challenge your current judgment. Important: DO NOT copy conclusions from history scenes directly.
                     You must:
@@ -931,7 +931,7 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_content + scenes_fp + scenes_tp}
         ]
-        # 写入文件（覆盖写入） 
+  
         filtered_history_scenes_fp = [item for item in scenes_fp if "image_url" not in item]
         filtered_history_scenes_tp = [item for item in scenes_tp if "image_url" not in item]
         filtered_user_content = [item for item in user_content if "image_url" not in item]
@@ -946,8 +946,8 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(combined_output, f, ensure_ascii=False, indent=2)
 
-        # with open(output_file, "w", encoding="utf-8") as f:
-        #     f.write(json.dumps([{"role": "user", "content": filtered_user_content}] + filtered_history_scenes_fp + filtered_history_scenes_tp, indent=2))
+  
+  
 
     elif len(history_scenes_fp) > 0:
         history_intro_fp = [
@@ -963,15 +963,15 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
                     Only use historical scenes as reference, NOT as ground truth."""
             )}
         ]
-        # print(type(history_intro_fp))
-        # print(type(history_scenes_fp))
-        # print(type(common_agent_prompt_fp))
+  
+  
+  
         scenes_fp = history_intro_fp + history_scenes_fp + [{"type": "text", "text": common_agent_prompt_fp}]
         messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_content + scenes_fp}
         ]
-        # 写入文件（覆盖写入）
+  
         filtered_history_scenes_fp = [item for item in scenes_fp if "image_url" not in item]
         filtered_user_content = [item for item in user_content if "image_url" not in item]
 
@@ -985,13 +985,13 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(combined_output, f, ensure_ascii=False, indent=2)
 
-        # with open(output_file, "w", encoding="utf-8") as f:
-        #     f.write(json.dumps([{"role": "user", "content": filtered_user_content}] + filtered_history_scenes_fp, indent=2))  
+  
+  
     elif len(history_scenes_tp) > 0:
         history_intro_tp = [
-            # {"type": "text", "text": (
-            #     "The following are historical reference scenes. Use them only as contrast to support or challenge your current judgment."
-            # )}
+  
+  
+  
             {"type": "text", "text": (
                 """The following are historical reference scenes. Use them only as contrast to support or challenge your current judgment. Important: DO NOT copy conclusions from history scenes directly.
                     You must:
@@ -1010,7 +1010,7 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_content + scenes_tp}
         ]
-        # 写入文件（覆盖写入）
+  
         filtered_history_scenes_tp = [item for item in scenes_tp if "image_url" not in item]
         filtered_user_content = [item for item in user_content if "image_url" not in item]
 
@@ -1023,8 +1023,8 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
 
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(combined_output, f, ensure_ascii=False, indent=2)
-        # with open(output_file, "w", encoding="utf-8") as f:
-        #     f.write(json.dumps([{"role": "user", "content": filtered_user_content}] + filtered_history_scenes_tp, indent=2))    
+  
+  
     else:
         messages = [
         {"role": "system", "content": system_prompt},
@@ -1033,30 +1033,30 @@ def get_collision_reasoning_with_image(base_dir, current_frame, current_scene, p
         filtered_user_content = [item for item in user_content if "image_url" not in item]
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(json.dumps([{"role": "user", "content": filtered_user_content}], indent=2))  
-    # 发送包含图像和文字提示的请求
+  
     completion = client.chat.completions.create(
         model="gpt-4o-2024-11-20",
         messages=messages,
         temperature=0.8,
-        # response_format=CollisionPredict
+  
     )
-    # completion = client.chat.completions.create(
-    #     # model="claude-3-5-sonnet-20240620",
-    #     # model="qwen-omni-turbo-2025-01-19",
-    #     messages=messages,
-    #     temperature=0.8,
-    #     # stream=True
-    #     # # response_format=CollisionPredict
-    # )
+  
+  
+  
+  
+  
+  
+  
+  
     
-    # 解析和返回推理结果(gpt)
+  
     print(completion)
     collision_reasoning = completion.choices[0].message.content
     return collision_reasoning
-    # # 逐步拼接内容
-    # response_text = parse_stream_response(completion)
+  
+  
 
-    # return response_text
+  
 
 
 def get_collision_reasoning_with_image_no_scene(base_dir, current_frame, \
@@ -1097,13 +1097,13 @@ def get_collision_reasoning_with_image_no_scene(base_dir, current_frame, \
                 
                 Your focus is on **NPCs that are visible of the ego vehicle**, within the camera's field of view. Ignore vehicles that are outside the sensor's effective range.
 
-                ### Risk Levels:
+  
                 - <Extreme Risk (0)>: Collision is imminent or extremely likely within **0.5 seconds**. Immediate avoidance required.
                 - <Negligible Risk (1)>: No meaningful collision risk within **0.5 seconds**. NPC is moving away or remains at a safe distance.
 
                 ---
 
-                ### Step-by-Step Reasoning Process:
+  
 
                 1️⃣ **Identify NPCs in Ego's Forward View**:
                 - Use images and text data to locate all NPCs visible **in the ego vehicle**.
@@ -1156,7 +1156,7 @@ def get_collision_reasoning_with_image_no_scene(base_dir, current_frame, \
                 - What is the cause? (e.g., lane merging, too slow in front, sudden cut-in)
                 - Recommended Action Plan: Recommend how the ego should react (e.g., brake, slow down, change lanes) and what speed range is safe.
 
-                ### Output Format (JSON):
+  
                 Return the final output as a JSON with:
 
                 ```json
@@ -1183,18 +1183,18 @@ def get_collision_reasoning_with_image_no_scene(base_dir, current_frame, \
         model="gpt-4o-2024-11-20",
         messages=messages,
         temperature=0.8,
-        # response_format=CollisionPredict
+  
     )
-    # completion = client.chat.completions.create(
-    #     # model="claude-3-5-sonnet-20240620",
-    #     # model="qwen-omni-turbo-2025-01-19",
-    #     messages=messages,
-    #     temperature=0.8,
-    #     # stream=True
-    #     # # response_format=CollisionPredict
-    # )
+  
+  
+  
+  
+  
+  
+  
+  
     
-    # 解析和返回推理结果(gpt)
+  
     print(completion)
     collision_reasoning = completion.choices[0].message.content
     return collision_reasoning

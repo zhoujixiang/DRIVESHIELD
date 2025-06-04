@@ -32,10 +32,10 @@ def load_or_compute_losses(anomaly_detector, dataset, cached_file_name, delete_c
         print("Losses for " + cached_file_name + " not found. Computing...")
 
         for x in tqdm(dataset):
-            # x = utils.resize(x)
+  
             x = normalize_and_reshape(x)
 
-            loss = anomaly_detector.test_on_batch(x)[1]  # total loss
+            loss = anomaly_detector.test_on_batch(x)[1]   
             losses.append(loss)
 
         np_losses = np.array(losses)
@@ -131,11 +131,11 @@ def evaluate_failure_prediction(cfg, simulation_name, aggregation_method, thresh
     data_df_anomalous['loss'] = new_losses
 
     for seconds in range(1, 2):
-        # true_positive_windows, false_negative_windows, undetectable_windows = compute_tp_and_fn(data_df_anomalous,
-        #                                                                                         new_losses,
-        #                                                                                         threshold,
-        #                                                                                         seconds,
-        #                                                                                         aggregation_method)
+  
+  
+  
+  
+  
         true_positive_windows, false_negative_windows, undetectable_windows = compute_tp_and_fn_0_5s(data_df_anomalous,
                                                                                                 new_losses,
                                                                                                 threshold,
@@ -159,36 +159,36 @@ def compute_tp_and_fn(data_df_anomalous, losses_on_anomalous, threshold, seconds
                       aggregation_method='mean'):
     print("time to misbehaviour (s): %d" % seconds_to_anticipate)
 
-    # only occurring when conditions == unexpected
+  
     true_positive_windows = 0
     false_negative_windows = 0
     undetectable_windows = 0
 
     number_frames_anomalous = len(data_df_anomalous)
-    fps_anomalous = 5  # only for icse20 configurations
+    fps_anomalous = 5   
 
     crashed_anomalous = data_df_anomalous['crashed']
     crashed_anomalous.is_copy = None
     crashed_anomalous_in_anomalous_conditions = crashed_anomalous.copy()
 
-    # creates the ground truth
+  
     all_first_frame_position_crashed_sequences = []
     for idx, item in enumerate(crashed_anomalous_in_anomalous_conditions):
-        if idx == number_frames_anomalous:  # we have reached the end of the file
+        if idx == number_frames_anomalous:   
             continue
 
         if crashed_anomalous_in_anomalous_conditions[idx] == 0 and crashed_anomalous_in_anomalous_conditions[
             idx + 1] == 1:
             first_index_crash = idx + 1
             all_first_frame_position_crashed_sequences.append(first_index_crash)
-            # print("first_index_crash: %d" % first_index_crash)
+  
 
     print("identified %d crash(es)" % len(all_first_frame_position_crashed_sequences))
     print(all_first_frame_position_crashed_sequences)
-    frames_to_reassign = fps_anomalous * seconds_to_anticipate  # start of the sequence
+    frames_to_reassign = fps_anomalous * seconds_to_anticipate   
 
-    # frames_to_reassign_2 = 1  # first frame before the failure
-    frames_to_reassign_2 = fps_anomalous * (seconds_to_anticipate - 1)  # first frame n seconds before the failure
+  
+    frames_to_reassign_2 = fps_anomalous * (seconds_to_anticipate - 1)   
 
     reaction_window = pd.Series()
 
@@ -198,7 +198,7 @@ def compute_tp_and_fn(data_df_anomalous, losses_on_anomalous, threshold, seconds
             undetectable_windows += 1
             continue
 
-        # the detection window overlaps with a previous crash; skip it
+  
         if crashed_anomalous_in_anomalous_conditions.loc[
            item - frames_to_reassign: item - frames_to_reassign_2].sum() > 2:
             print("failure %d cannot be detected at TTM=%d" % (item, seconds_to_anticipate))
@@ -216,7 +216,7 @@ def compute_tp_and_fn(data_df_anomalous, losses_on_anomalous, threshold, seconds
             sma_anomalous = sma_anomalous.iloc[reaction_window.index.to_list()]
             assert len(reaction_window) == len(sma_anomalous)
 
-            # print(sma_anomalous)
+  
 
             aggregated_score = None
             if aggregation_method == "mean":
@@ -240,16 +240,16 @@ def compute_tp_and_fn(data_df_anomalous, losses_on_anomalous, threshold, seconds
     return true_positive_windows, false_negative_windows, undetectable_windows
 
 def compute_fp_and_tn(data_df_nominal, aggregation_method):
-    # when conditions == nominal I count only FP and TN
+  
 
-    # if condition == "icse20":
-    #     fps_nominal = 15  # only for icse20 configurations
-    # else:
-    #     number_frames_nominal = pd.Series.max(data_df_nominal['frameId'])
-    #     simulation_time_nominal = pd.Series.max(data_df_nominal['time'])
-    #     fps_nominal = number_frames_nominal // simulation_time_nominal
-    # data_df_nominal['loss'] = data_df_nominal['loss'] - data_df_nominal['loss'].min() + 1e-6
-    fps_nominal = 5  # only for icse20 configurations
+  
+  
+  
+  
+  
+  
+  
+    fps_nominal = 5   
     num_windows_nominal = len(data_df_nominal) // fps_nominal
     if len(data_df_nominal) % fps_nominal != 0:
         num_to_delete = len(data_df_nominal) - (num_windows_nominal * fps_nominal)
@@ -315,7 +315,7 @@ def compute_fp_and_tn(data_df_nominal, aggregation_method):
 def get_threshold(losses, conf_level=0.95):
     print("Fitting reconstruction error distribution using Gamma distribution")
 
-    # removing zeros
+  
     losses = np.array(losses)
     losses_copy = losses[losses != 0]
     shape, loc, scale = gamma.fit(losses_copy, floc=0)
@@ -328,38 +328,38 @@ def get_threshold(losses, conf_level=0.95):
 
 def compute_tp_and_fn_0_5s(data_df_anomalous, losses_on_anomalous, threshold,
                       aggregation_method='mean'):
-    # print("time to misbehaviour (s): %d" % seconds_to_anticipate)
+  
 
-    # only occurring when conditions == unexpected
+  
     true_positive_windows = 0
     false_negative_windows = 0
     undetectable_windows = 0
 
     number_frames_anomalous = len(data_df_anomalous)
-    fps_anomalous = 5  # only for icse20 configurations
+    fps_anomalous = 5   
 
     crashed_anomalous = data_df_anomalous['crashed']
     crashed_anomalous.is_copy = None
     crashed_anomalous_in_anomalous_conditions = crashed_anomalous.copy()
 
-    # creates the ground truth
+  
     all_first_frame_position_crashed_sequences = []
     for idx, item in enumerate(crashed_anomalous_in_anomalous_conditions):
-        if idx == number_frames_anomalous:  # we have reached the end of the file
+        if idx == number_frames_anomalous:   
             continue
 
         if crashed_anomalous_in_anomalous_conditions[idx] == 0 and crashed_anomalous_in_anomalous_conditions[
             idx + 1] == 1:
             first_index_crash = idx + 1
             all_first_frame_position_crashed_sequences.append(first_index_crash)
-            # print("first_index_crash: %d" % first_index_crash)
+  
 
     print("identified %d crash(es)" % len(all_first_frame_position_crashed_sequences))
     print(all_first_frame_position_crashed_sequences)
-    frames_to_reassign = fps_anomalous * 2  # start of the sequence
+    frames_to_reassign = fps_anomalous * 2   
 
-    # frames_to_reassign_2 = 1  # first frame before the failure
-    frames_to_reassign_2 = 5  # first frame n seconds before the failure
+  
+    frames_to_reassign_2 = 5   
 
     reaction_window = pd.Series()
 
@@ -369,7 +369,7 @@ def compute_tp_and_fn_0_5s(data_df_anomalous, losses_on_anomalous, threshold,
             undetectable_windows += 1
             continue
 
-        # the detection window overlaps with a previous crash; skip it
+  
         if crashed_anomalous_in_anomalous_conditions.loc[
            item - frames_to_reassign: item - frames_to_reassign_2].sum() > 2:
             print("failure %d cannot be detected at TTM=%d" % (item, 0.5))
@@ -387,7 +387,7 @@ def compute_tp_and_fn_0_5s(data_df_anomalous, losses_on_anomalous, threshold,
             sma_anomalous = sma_anomalous.iloc[reaction_window.index.to_list()]
             assert len(reaction_window) == len(sma_anomalous)
 
-            # print(sma_anomalous)
+  
 
             aggregated_score = None
             if aggregation_method == "mean":

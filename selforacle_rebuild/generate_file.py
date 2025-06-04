@@ -113,9 +113,9 @@ def count_paths_all_true_positive(csv_file, n):
 if __name__ == '__main__':
 
 
-    # root_folder = "/bdata/usrdata/root/monitor_test/Bench2Drive/eval_bench2drive220_vad_traj/normal/train"  
-    # output_csv = "/bdata/usrdata/root/monitor_test/selforacle_rebuild/train_output_fps10_bev.csv"  
-    # find_and_record_paths_in_order(root_folder, output_csv,1)
+  
+  
+  
 
     base_path = "/bdata/usrdata/root/monitor_test/Bench2Drive/eval_bench2drive220_vad_traj/collision_need_judge_2"
 
@@ -130,18 +130,18 @@ if __name__ == '__main__':
     folders_sorted = sorted(folders, key=lambda x: os.path.basename(x))
 
     for folder in folders_sorted:
-        folder_path = os.path.join(folder, 'rgb_front')  # rgb_front 文件夹路径
+        folder_path = os.path.join(folder, 'rgb_front')   
         output_csv = os.path.join(folder, 'driving_log_bev.csv')  
-        # output_csv = "/bdata/usrdata/root/monitor_test/selforacle_rebuild/driving_log_bev.csv"
-        # if os.path.exists(output_csv):
-        #     os.remove(output_csv)
-        # write_normal_file_paths_to_csv(folder_path, output_csv, step=1, n=5)
+  
+  
+  
+  
         write_abnormal_file_paths_to_csv(folder_path, output_csv,10, 1)
-    # # import pandas as pd
+  
 
-    # # # 读取 CSV 文件
-    # # 示例调用
-    # csv_file = "/home/root/ase22/selforacle_rebuild/test_data_results_tp_fn.csv"  
-    # n = 1  # 目标 seconds
-    # result = count_paths_all_true_positive(csv_file, n)
-    # print(f"在 seconds={n} 时，其对应的 path 之前 (seconds < {n}) 有 false_negative_windows=1 的 path 数量: {result}")
+  
+  
+  
+  
+  
+  
