@@ -20,7 +20,7 @@ def train_vae_model(cfg, vae, name, x_train, x_test, delete_model, retraining, s
     Train the VAE model
     """
 
-  
+    # do not use .h5 extension when saving/loading custom objects
     my_encoder = Path(os.path.join(cfg.SAO_MODELS_DIR, "encoder-" + name))
     my_decoder = Path(os.path.join(cfg.SAO_MODELS_DIR, "decoder-" + name))
 
@@ -48,10 +48,10 @@ def train_vae_model(cfg, vae, name, x_train, x_test, delete_model, retraining, s
     x_train = shuffle(x_train, random_state=0)
     x_test = shuffle(x_test, random_state=0)
 
-  
+    # set uniform weights to all samples
     weights = np.ones(shape=(len(x_train),))
 
-  
+    # weighted retraining
     if retraining:
         if sample_weights is not None:
             weights = sample_weights
@@ -59,20 +59,20 @@ def train_vae_model(cfg, vae, name, x_train, x_test, delete_model, retraining, s
     train_generator = Generator(x_train, True, cfg, weights)
     val_generator = Generator(x_test, True, cfg, weights)
 
-  
+    # reduce_lr = ReduceLROnPlateau(monitor='val_total_loss', factor=0.5, patience=5, verbose=1)
 
     history = vae.fit(train_generator,
                       validation_data=val_generator,
                       shuffle=True,
                       epochs=cfg.NUM_EPOCHS_SAO_MODEL,
                       verbose=0,
-  
+                    #   callbacks=[reduce_lr]
                       )
 
     duration_train = time.time() - start
     print("Training completed in %s." % str(datetime.timedelta(seconds=round(duration_train))))
 
-  
+    # Plot the autoencoder training history
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_total_loss'])
     plt.ylabel('reconstruction loss (' + str(cfg.LOSS_SAO_MODEL) + ')')
@@ -83,7 +83,7 @@ def train_vae_model(cfg, vae, name, x_train, x_test, delete_model, retraining, s
     plt.savefig('plots/history-training-' + str(vae.model_name) + '.png')
     plt.show()
 
-  
+    # save the last model
     vae.encoder.save(my_encoder.__str__(), save_format="tf", include_optimizer=True)
     vae.decoder.save(my_decoder.__str__(), save_format="tf", include_optimizer=True)
 
@@ -93,7 +93,7 @@ def train_vae_model(cfg, vae, name, x_train, x_test, delete_model, retraining, s
 
 
 def main():
-  
+    # os.chdir(os.getcwd().replace('selforacle_rebuild', ''))
 
     cfg = Config()
     cfg.from_pyfile("config_my.py")

@@ -30,7 +30,7 @@ class Encoder(layers.Layer):
         z_log_var = layers.Dense(latent_dim, name="z_log_var")(x)
         z = Sampling()([z_mean, z_log_var])
         encoder = keras.Model(inputs=inputs, outputs=[z_mean, z_log_var, z], name="encoder")
-  
+        # encoder.summary()
 
         return encoder
 
@@ -45,7 +45,7 @@ class Decoder(layers.Layer):
         decoder_outputs = Dense(original_dim, activation='sigmoid')(x)
 
         decoder = keras.Model(inputs=latent_inputs, outputs=decoder_outputs, name="decoder")
-  
+        # decoder.summary()
 
         return decoder
 

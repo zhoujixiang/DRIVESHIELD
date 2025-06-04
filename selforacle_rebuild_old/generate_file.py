@@ -37,7 +37,7 @@ import csv
 def write_normal_file_paths_to_csv(folder_path, output_csv, step=1, n=10):
 
     file_paths = []
-    for root, dirs, files in os.walk(folder_path):
+    forroot, dirs, files in os.walk(folder_path):
         for file in files:
             full_path = os.path.join(root, file)
             file_paths.append(full_path)
@@ -70,7 +70,7 @@ def write_normal_file_paths_to_csv(folder_path, output_csv, step=1, n=10):
 def write_abnormal_file_paths_to_csv(folder_path, output_csv, n, step =2):
 
     file_paths = []
-    for root, dirs, files in os.walk(folder_path):
+    forroot, dirs, files in os.walk(folder_path):
         for file in files:
             full_path = os.path.join(root, file)
             file_paths.append(full_path)

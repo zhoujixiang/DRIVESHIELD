@@ -110,7 +110,7 @@ kiwisolver==1.4.7
 laspy==2.5.0
 lazrs==0.5.3
 # Editable install with no version control (lgsvl==2021.1)
--e /home/zjx/svlsimulator-linux64-2021.3/PythonAPI-master
+-e /home/  root/svlsimulator-linux64-2021.3/PythonAPI-master
 llvmlite==0.31.0
 lxml==5.3.0
 lyft-dataset-sdk==0.0.8
@@ -243,7 +243,7 @@ tomli==2.1.0
 tomlkit==0.13.2
 torch==2.4.1+cu118
 torch-geometric==2.6.1
-torch_scatter @ file:///home/zjx/scenariofuzz/torch_scatter-2.1.2%2Bpt24cu118-cp38-cp38-linux_x86_64.whl#sha256=1c8b1bceed4a5cc011ff3ae5f4b9f914b56cf56c7512fa7a57c6cc373195c627
+torch_scatter @ file:///home/  root/scenariofuzz/torch_scatter-2.1.2%2Bpt24cu118-cp38-cp38-linux_x86_64.whl#sha256=1c8b1bceed4a5cc011ff3ae5f4b9f914b56cf56c7512fa7a57c6cc373195c627
 torchaudio==2.4.1+cu118
 torchmetrics==0.11.4
 torchvision==0.19.1+cu118

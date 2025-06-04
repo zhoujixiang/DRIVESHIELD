@@ -25,18 +25,18 @@ class Generator(Sequence):
         images = np.empty([len(batch_paths), RESIZED_IMAGE_HEIGHT * RESIZED_IMAGE_WIDTH * IMAGE_CHANNELS])
         for i, paths in enumerate(batch_paths):
 
-            center = batch_paths[i][0]   
-  
+            center = batch_paths[i][0]  # select the center image from the batch
+            # print(center)
             try:
                 image = mpimg.imread(center)
             except FileNotFoundError:
                 image = mpimg.imread(center)
             image = crop(image)
 
-  
-  
-  
-  
+            # # visualize whether the input_image image as expected
+            # import matplotlib.pyplot as plt
+            # plt.imshow(image)
+            # plt.show()
             image = normalize_and_reshape(image)
             images[i] = image
 
