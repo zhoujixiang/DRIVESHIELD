@@ -43,20 +43,18 @@ def load_image(data_dir, image_file):
 
 
 def crop(image):
-    # 获取原始图片尺寸
+
     height, width, _ = image.shape
 
-    # 计算裁剪起点（从图片中心裁剪）
-    crop_x_center = width // 2  # 水平方向中心点
-    crop_y_center = height // 2  # 垂直方向中心点
+    crop_x_center = width // 2  
+    crop_y_center = height // 2  
 
-    # 计算裁剪范围，确保不会超出边界
     left = max(0, crop_x_center - RESIZED_IMAGE_WIDTH // 2)
     right = min(width, crop_x_center + RESIZED_IMAGE_WIDTH // 2)
     top = max(0, crop_y_center - RESIZED_IMAGE_HEIGHT // 2)
     bottom = min(height, crop_y_center + RESIZED_IMAGE_HEIGHT // 2)
 
-    # 计算裁剪后的尺寸
+
     cropped_image = image[top:bottom, left:right]
 
     return cropped_image
@@ -481,46 +479,17 @@ def get_sorted_folders(base_dir):
     return sorted_folders
 
 def append_results_to_csv( row_to_append, output_csv):
-    """
-    将数据行追加到 CSV 文件中，如果文件不存在则创建并添加表头。
 
-    Args:
-        output_csv (str): 要写入的 CSV 文件路径。
-        row_to_append (dict): 包含要写入数据的字典，键为列名，值为对应数据。
-    """
-    # 检查 CSV 文件是否存在
     file_exists = os.path.isfile(output_csv)
 
-    # 以追加的方式写入 CSV 文件
+
     with open(output_csv, mode='a', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=row_to_append.keys())
 
-        # 如果文件不存在，则写入表头
+
         if not file_exists:
             writer.writeheader()
 
-        # 写入数据行
+
         writer.writerow(row_to_append)
 
-    print(f"结果已成功追加到 {output_csv}")
-
-# def calculate_threshold(path, aggregation_method):
-#     """
-#     计算 CSV 文件中 aggregation_method 列的值为 'mean' 的所有 threshold 列的均值。
-
-#     Args:
-#         path (str): CSV 文件的路径。
-
-#     Returns:
-#         float: 筛选后的 threshold 均值。
-#     """
-#     # 读取 CSV 文件
-#     data = pd.read_csv(path)
-    
-#     # 筛选 aggregation_method 为 'mean' 的行
-#     filtered_data = data[data["aggregation_method"] == aggregation_method]
-    
-#     # 计算 threshold 列的均值
-#     threshold_mean = filtered_data["threshold"].mean()
-    
-#     return threshold_mean

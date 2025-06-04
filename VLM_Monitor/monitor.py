@@ -15,12 +15,10 @@ def run_collision_prediction_pipeline(base_path, key_frames, start_index=5, db_p
 
     for id_frame in range(start_index, len(key_frames)):
         current_frame = int(os.path.splitext(key_frames[id_frame])[0])
-        # 获取描述信息和图数据
         descriptions = generate_vehicle_descriptions(record_dir, current_frame)
         current_scene, past_scene, current_scene_json, past_scene_json = generate_scene_graph(record_dir, current_frame)
         metadata = {"path": current_scene_json}
 
-        # 调用模型预测碰撞信息
         result = get_collision_reasoning_with_image(
             base_path, current_frame,current_scene, past_scene,
             descriptions["vehicle_description"],
@@ -30,13 +28,11 @@ def run_collision_prediction_pipeline(base_path, key_frames, start_index=5, db_p
             descriptions["vehicle_description_2.0s"]
         )
         
-        # 保存结果文本
         id = f"{current_frame:04d}"
         result_path = os.path.join(result_dir, f"{id}.txt")
         with open(result_path, "w") as f:
             f.write(result)
 
-        # 获取碰撞分数及高风险NPC
         score, dangerous_npc = get_fp_collision(result_path)
         if id_frame == len(key_frames) - 1:
             if score == 2 or score == 1:
@@ -52,7 +48,6 @@ def run_collision_prediction_pipeline(base_path, key_frames, start_index=5, db_p
                 metadata["dangerous_npc"] = [closest_npc_id]
                 save_graph_pair_to_db(current_scene, past_scene, metadata, dp_path_collision)
 
-                    # 保存描述信息为 JSON 文件
             prompt_path = os.path.join(prompt_dir, f"{id}.json")
             with open(prompt_path, "w") as f:
                 json.dump(descriptions, f, indent=2, ensure_ascii=False)
@@ -62,7 +57,6 @@ def run_collision_prediction_pipeline(base_path, key_frames, start_index=5, db_p
             metadata["dangerous_npc"] = dangerous_npc
             save_graph_pair_to_db(current_scene, past_scene, metadata, db_path)
 
-        # 保存描述信息为 JSON 文件
         prompt_path = os.path.join(prompt_dir, f"{id}.json")
         with open(prompt_path, "w") as f:
             json.dump(descriptions, f, indent=2, ensure_ascii=False)

@@ -73,7 +73,6 @@ def evaluate_fp_and_tn_new(path, aggregation_method):
     data_df_nominal['loss'] = original_losses
     false_positive_windows, true_negative_windows, threshold = compute_fp_and_tn(data_df_nominal,
                                                                                  aggregation_method)
-        # 准备要写入的数据
     row_to_append = {
         "path": path,
         "false_positive_windows": false_positive_windows,
@@ -82,7 +81,6 @@ def evaluate_fp_and_tn_new(path, aggregation_method):
         "aggregation_method":aggregation_method
     }
 
-    # 调用封装的函数写入 CSV
     append_results_to_csv(row_to_append, output_csv = "vad_results_tn_fp.csv")
 
 def evaluate_fp_and_tn(cfg, simulation_name, aggregation_method):
@@ -103,7 +101,7 @@ def evaluate_fp_and_tn(cfg, simulation_name, aggregation_method):
     data_df_nominal['loss'] = original_losses
     false_positive_windows, true_negative_windows, threshold = compute_fp_and_tn(data_df_nominal,
                                                                                  aggregation_method)
-        # 准备要写入的数据
+
     row_to_append = {
         "path": path,
         "false_positive_windows": false_positive_windows,
@@ -112,7 +110,6 @@ def evaluate_fp_and_tn(cfg, simulation_name, aggregation_method):
         "aggregation_method":aggregation_method
     }
 
-    # 调用封装的函数写入 CSV
     append_results_to_csv(row_to_append, output_csv = "test_data_results_tn_fp.csv")
 
 def evaluate_failure_prediction(cfg, simulation_name, aggregation_method, threshold):
@@ -144,7 +141,6 @@ def evaluate_failure_prediction(cfg, simulation_name, aggregation_method, thresh
                                                                                                 new_losses,
                                                                                                 threshold,
                                                                                                 aggregation_method)
-        # 准备要写入的数据
         row_to_append = {
             "path": path,
             "true_positive_windows": true_positive_windows,
@@ -154,7 +150,6 @@ def evaluate_failure_prediction(cfg, simulation_name, aggregation_method, thresh
             "aggregation_method": aggregation_method
         }
 
-        # 调用封装的函数写入 CSV
         append_results_to_csv(row_to_append, output_csv = "vad_tp_fn.csv")
     del vae
     K.clear_session()
@@ -291,23 +286,20 @@ def compute_fp_and_tn(data_df_nominal, aggregation_method):
     import matplotlib.pyplot as plt
     import scipy.stats as stats
 
-    # 确保 list_aggregated 是 NumPy 数组
     losses = np.array(list_aggregated)
-    losses = losses[losses > 0]  # 去掉零值，避免影响拟合
+    losses = losses[losses > 0]  
 
-    # 直方图
     plt.figure(figsize=(8, 6))
     plt.hist(losses, bins=50, density=True, alpha=0.6, color='b', label="Empirical Distribution")
 
-    # 拟合伽马分布
+
     shape, loc, scale = stats.gamma.fit(losses, floc=0)
     x = np.linspace(min(losses), max(losses), 100)
     pdf_fitted = stats.gamma.pdf(x, shape, loc=loc, scale=scale)
 
-    # 绘制拟合的伽马分布
+
     plt.plot(x, pdf_fitted, 'r-', label="Fitted Gamma Distribution")
 
-    # 添加标签
     plt.xlabel("Loss Value")
     plt.ylabel("Density")
     plt.legend()
