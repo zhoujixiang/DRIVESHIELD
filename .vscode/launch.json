@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Attach to Debugpy",
+        "type": "python",
+        "request": "attach",
+        "connect": {
+          "host": "localhost",
+          "port": 5678
+        },
+        "justMyCode": false
+      },
+      {
+        "name": "manual",
+        "type": "python",
+        "request": "launch",
+        "python": "/home/root/anaconda3/envs/b2d_zoo/bin/python",
+        "program": "/home/root/LatencyTest/scenario_runner/manual_control.py",
+        "console": "integratedTerminal",
+        "env": {"PYTHONPATH": "${workspaceFolder}/"},
+        "justMyCode": true
+      }
+    ]
+  }
+  
